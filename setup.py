@@ -25,7 +25,7 @@ prod_dependencies = [
 
 setup_kwargs = {
     'name': "chkp-harmony-endpoint-management-sdk",
-    'version': '1.1.31',
+    'version': '1.1.33',
     'keywords': 'python, harmony, endpoint, sdk, checkpoint',
     'license': 'MIT',
     'description': 'Harmony Endpoint Official Python SDK',
