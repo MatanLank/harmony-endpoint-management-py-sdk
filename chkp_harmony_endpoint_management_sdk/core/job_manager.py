@@ -42,7 +42,8 @@ def await_for_job(job_id: str, job_status_operation: Callable[[], Any], request_
             break
         
         if job_status_res.payload["status"] == 'NOT_FOUND' or job_status_res.payload["status"] == 'FAILED':
-                error_logger(f'Job "{job_id}" failed with status "{job_status_res.payload["status"]}", error: {job_status_res.payload}')
+                msg = f'Job "{job_id}" failed with status "{job_status_res.payload["status"]}", error: {job_status_res.payload}'
+                error_logger(msg)
                 raise HarmonyApiException(error_scope=HarmonyErrorScope.SERVICE, request_id=request_id, message=msg, payload_error=job_status_res.payload)
              
     logger(f'Job "{job_id}" finished successfully')

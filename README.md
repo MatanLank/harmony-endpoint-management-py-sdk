@@ -164,7 +164,7 @@ Harmony Endpoint Management SDK uses the official python logger package for logg
 
 There are 3 loggers, for general info, errors and to inspect network.
 
-As default they will be disabled, in order to enable logging, set to the `HARMONY_ENDPOINT_SDK_LOGGER` environment variable the following string:
+As default they will be disabled, in order to enable logging, set to the `HARMONY_ENDPOINT_SDK_LOGGER` environment variable the following string before loading the SDK:
 ```bash
 HARMONY_ENDPOINT_SDK_LOGGER="*"
 ```
@@ -172,6 +172,16 @@ HARMONY_ENDPOINT_SDK_LOGGER="*"
 And for a specific/s logger set the logger name followed by a command as following:
 ```bash
 HARMONY_ENDPOINT_SDK_LOGGER="info,error,network"
+```
+
+or activate logger programmatically using SDK methods:
+```python
+from chkp_harmony_endpoint_management_sdk import activate_all_loggers, activate_info_logger, activate_error_logger, activate_network_logger
+...
+activate_all_loggers() # Will activate all logger
+activate_info_logger() # Will activate the info logger only
+activate_error_logger() # Will activate the error logger only
+activate_network_logger() # Will activate the network logger only
 ```
 
 ## 🐞 Report Bug
