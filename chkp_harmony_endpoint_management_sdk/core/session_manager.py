@@ -1,7 +1,7 @@
 import json
 import threading
 import time
-from typing import Dict, Optional, Any, Callable
+from typing import Any
 from unitsnet_py import Duration
 from chkp_harmony_endpoint_management_sdk.classes import harmony_endpoint_saas_options
 from chkp_harmony_endpoint_management_sdk.classes.harmony_endpoint_saas_options import HarmonyEndpointSaaSOptions
@@ -18,6 +18,7 @@ from chkp_harmony_endpoint_management_sdk.generated.saas.api_client import ApiCl
 import uuid
 from enum import Enum
 from urllib.parse import urlparse
+import jwt
 import requests
 
 class WorkMode(Enum):
@@ -31,6 +32,8 @@ EXTERNAL_API_BASE_PATH = '/harmony/endpoint/api'
 CI_AUTH_PATH = '/auth/external'
 
 SOURCE_HEADER = 'harmony-endpoint-py-sdk'
+
+VERIFY_CONTENT = False
 
 class SessionManager:
     def __init__(self):
@@ -47,7 +50,7 @@ class SessionManager:
         The CI token expiration
         """
 
-        self.__on_premise_portal_auth = OnPremisePortalAuth = None
+        self.__on_premise_portal_auth: OnPremisePortalAuth = None
         """
         The CI token expiration
         """
@@ -189,9 +192,10 @@ class SessionManager:
             if not response_json['success']:
                 error_logger(f'Failed to login to CI GW for session "{self.__session_id}" url "{auth_url}", error payload: {response_json}')
                 raise response_json
-            logger(f'Preforming CI login to session id "{self.__session_id}" succeeded');
+            logger(f'Preforming CI login to session id "{self.__session_id}" succeeded')
 
             self.__infinity_portal_token = response_json['data']['token']
+            self.__assert_token_is_for_correct_application(self.__infinity_portal_token)
             self.__next_ci_expiration = Duration.from_seconds(time.time()) + Duration.from_seconds(response_json['data']['expiresIn'])
         except Exception as e:
             error_logger(f'Failed to login to CI GW for session "{self.__session_id}" url "{auth_url}", error: {e}')
@@ -367,9 +371,42 @@ class SessionManager:
                 message=message,
                 error_scope=HarmonyErrorScope.INVALID_PARAMS,
             )
-    
+
+    def __assert_token_is_for_correct_application(self, bearer_token: str) -> None:
+        if not bearer_token:
+            error_logger('No bearer token was given. Ignoring. Requests may fail')
+            return
+
+        try:
+            # Token verification is NOT required here - this is just to determine whether
+            # the Infinity Portal bearer is for the 'Endpoint' application
+            decoded_token = jwt.decode(bearer_token, verify=VERIFY_CONTENT)
+            if not decoded_token:
+                error_logger('Bearer decoding yielded nothing. Ignoring. Requests may fail')
+                return
+
+            app_id = decoded_token['appId']
+            if not app_id:
+                error_logger('An Application ID claim was not present in the bearer token. Ignoring. Requests may fail')
+                return
+
+            endpoint_app_id = '12345678-8888-1234-1234-123456789123'
+            if app_id != endpoint_app_id:
+                error_logger(f"Target application is incorrect - expected '{endpoint_app_id}' but got '{app_id}'. Raising an error")
+                raise HarmonyApiException(
+                    message=(
+                            "The provided API key must be for the 'Endpoint' service. Please refer to the documentation at "
+                            'https://app.swaggerhub.com/apis/Check-Point/web-mgmt-external-api-production for more details'
+                    ),
+                    error_scope=HarmonyErrorScope.INVALID_PARAMS,
+                )
+
+        except jwt.InvalidTokenError:
+            error_logger('The given token could not be decoded. Ignoring. Requests may fail')
+            return
+
     def connect_cloud(self, infinity_portal_auth: InfinityPortalAuth, session_operations: SessionOperations):
-        self.__work_mode  = WorkMode.CLOUD
+        self.__work_mode = WorkMode.CLOUD
         self.__sdk_connection_state = SDKConnectionState.CONNECTING
         self.__validate_cloud_params(infinity_portal_auth)
         self.__session_operations = session_operations
@@ -383,9 +420,8 @@ class SessionManager:
 
         self.__activate_keep_alive()
 
-
     def connect_saas(self, infinity_portal_auth: InfinityPortalAuth, harmony_endpoint_saas_options: HarmonyEndpointSaaSOptions, session_operations: SessionOperations):
-        self.__work_mode  = WorkMode.SAAS
+        self.__work_mode = WorkMode.SAAS
         self.__sdk_connection_state = SDKConnectionState.CONNECTING
         self.__validate_cloud_params(infinity_portal_auth)
         self.__harmony_endpoint_saas_options = harmony_endpoint_saas_options
