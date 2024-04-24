@@ -349,7 +349,7 @@ class BaseApi(api_client.Api):
         if prefix_separator_iterator is None:
                 prefix_separator_iterator = parameter.get_prefix_separator_iterator()
         
-        serialized_data = parameter.serialize('{{operationId}}', prefix_separator_iterator)
+        serialized_data = parameter.serialize('{{operationIdOriginal}}', prefix_separator_iterator)
         for serialized_value in serialized_data.values():
             used_path += serialized_value
 
@@ -407,8 +407,8 @@ class BaseApi(api_client.Api):
         host = self._get_host_oapg('{{operationId}}', _servers, host_index)
     {{/if}}
 
-        _headers.add("x-mgmt-session-id", session_id)
-        _headers.add("x-mgmt-request-id", request_id)
+        _headers.add("x-mgmt-data-session-id", session_id)
+        _headers.add("x-mgmt-data-request-id", request_id)
 
         source_header = self.api_client.configuration.api_key['session']['source_header']
         if source_header:
