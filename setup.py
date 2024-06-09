@@ -17,7 +17,7 @@ prod_dependencies = [
     'MarkupSafe==2.1.3',
     'python-dateutil==2.8.2',
     'python-dotenv==1.0.0',
-    'requests==2.31.0',
+    'requests==2.32.0',
     'typing-extensions==4.8.0',
     'pyjwt==2.8.0',
     'unitsnet-py>=0.1.82',
@@ -26,7 +26,7 @@ prod_dependencies = [
 
 setup_kwargs = {
     'name': "chkp-harmony-endpoint-management-sdk",
-    'version': '1.1.37',
+    'version': '1.1.38',
     'keywords': 'python, harmony, endpoint, sdk, checkpoint',
     'license': 'MIT',
     'description': 'Harmony Endpoint Official Python SDK',
