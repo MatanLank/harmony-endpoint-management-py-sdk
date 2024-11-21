@@ -24,6 +24,12 @@ jobs:
         run: |
           pip install -r requirements.txt
 
+      - name: Install SonarScanner
+        run: |
+          curl -sSLo sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.8.0.2856-linux.zip
+          unzip sonar-scanner.zip -d $HOME
+          export PATH="$HOME/sonar-scanner-4.8.0.2856-linux/bin:$PATH"
+
       - name: Run SonarCloud Scan
         run: |
           sonar-scanner \
@@ -31,4 +37,5 @@ jobs:
           -Dsonar.organization=MatanLank \
           -Dsonar.host.url=https://sonarcloud.io \
           -Dsonar.login=${{ secrets.DEVSEC01 }}
+
 
