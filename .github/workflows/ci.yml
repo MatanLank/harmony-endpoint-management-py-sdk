@@ -3,7 +3,139 @@ name: SonarCloud Analysis
 on:
   push:
     branches:
+      - release
+  pull_request:
+
+jobs:
+  sonarcloud:
+    name: SonarCloud Analysis
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: '3.x'
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+
+      - name: Run SonarCloud Scan
+        run: |
+          sonar-scanner \
+          -Dsonar.projectKey=MatanLank_harmony-endpoint-management-py-sdk \
+          -Dsonar.organization=MatanLank \
+          -Dsonar.host.url=https://sonarcloud.io \
+          -Dsonar.login=${{ secrets.DEVSECname: SonarCloud Analysis
+
+on:
+  push:
+    branches:
       - main
+  pull_request:
+
+jobs:
+  sonarcloud:
+    name: SonarCloud Analysis
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v3
+        name: SonarCloud Analysis
+
+on:
+  push:
+    branches:
+      - release
+  pull_request:
+
+jobs:
+  sonarcloud:
+    name: SonarCloud Analysis
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: '3.x'
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+
+      - name: Run SonarCloud Scan
+        run: |
+          sonar-scanner \
+          -Dsonar.projectKey=MatanLank_harmony-endpoint-management-py-sdk \
+          -Dsonar.organization=MatanLank \
+          -Dsonar.host.url=https://sonarcloud.io \
+          -Dsonar.login=${{ secrets.DEVSEC01 }}
+name: SonarCloud Analysis
+
+on:
+  push:
+    branches:
+      - release
+  pull_request:
+
+jobs:
+  sonarcloud:
+    name: SonarCloud Analysis
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: '3.x'
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+
+      - name: Run SonarCloud Scan
+        run: |
+          sonar-scanner \
+          -Dsonar.projectKey=MatanLank_harmony-endpoint-management-py-sdk \
+          -Dsonar.organization=MatanLank \
+          -Dsonar.host.url=https://sonarcname: SonarCloud Analysis
+
+on:
+  push:
+    branches:
+      - release
+  pull_request:
+
+jobs:
+  sonarcloud:
+    name: SonarCloud Analysis
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+name: SonarCloud Analysis
+
+on:
+  push:
+    branches:
+      - release
   pull_request:
 
 jobs:
