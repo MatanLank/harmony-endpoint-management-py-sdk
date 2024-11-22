@@ -25,8 +25,7 @@ jobs:
           java-version: '11'
 
       - name: Install dependencies
-        run: |
-          pip install -r requirements.txt
+        run: pip install -r requirements.txt
 
       - name: Install SonarScanner
         run: |
@@ -35,11 +34,12 @@ jobs:
           export PATH="$HOME/sonar-scanner-4.8.0.2856-linux/bin:$PATH"
           echo "SonarScanner installed and PATH updated"
 
-      - name: Verify Java Installation
-        run: java -version
-
-      - name: Verify SonarScanner Installation
-        run: sonar-scanner --version
+      - name: Debug Environment
+        run: |
+          echo "JAVA_HOME: $JAVA_HOME"
+          echo "PATH: $PATH"
+          java -version || echo "Java is not installed"
+          sonar-scanner --version || echo "SonarScanner is not installed"
 
       - name: Run SonarCloud Scan
         run: |
@@ -48,5 +48,4 @@ jobs:
           -Dsonar.organization=MatanLank \
           -Dsonar.host.url=https://sonarcloud.io \
           -Dsonar.login=${{ secrets.DEVSEC01 }}
-
 
