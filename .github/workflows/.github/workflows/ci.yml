@@ -30,23 +30,26 @@ jobs:
         run: |
           curl -sSLo sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.8.0.2856-linux.zip
           unzip sonar-scanner.zip -d $HOME
-          echo "$HOME/sonar-scanner-4.8.0.2856-linux/bin" >> $GITHUB_PATH
-          export PATH="$HOME/sonar-scanner-4.8.0.2856-linux/bin:$PATH"
+          echo "PATH=$HOME/sonar-scanner-4.8.0.2856-linux/bin:$PATH" >> $GITHUB_ENV
           echo "SonarScanner installed and PATH updated"
 
-      # Step 5: Setup Java (Optional, but recommended if not already set up)
-      - name: Setup Java
-        uses: actions/setup-java@v3
-        with:
-          distribution: 'temurin'
-          java-version: '11'
+      # Step 5: Verify Java Installation
+      - name: Verify Java Installation
+        run: java -version
 
-      # Step 6: Run SonarCloud Scan
+      # Step 6: Debug SonarScanner Installation
+      - name: Debug SonarScanner Installation
+        run: |
+          echo "PATH: $PATH"
+          ls -l $HOME/sonar-scanner-4.8.0.2856-linux/bin
+          sonar-scanner --version || echo "SonarScanner not found or not executable"
+
+      # Step 7: Run SonarCloud Scan
       - name: Run SonarCloud Scan
         run: |
           sonar-scanner \
-            -Dsonar.projectKey=MatanLank_harmony-endpoint-management-py-sdk \
-            -Dsonar.organization=MatanLank \
-            -Dsonar.host.url=https://sonarcloud.io \
-            -Dsonar.login=${{ secrets.DEVSEC01 }}
+          -Dsonar.projectKey=MatanLank_harmony-endpoint-management-py-sdk \
+          -Dsonar.organization=MatanLank \
+          -Dsonar.host.url=https://sonarcloud.io \
+          -Dsonar.login=${{ secrets.DEVSEC01 }}
 
