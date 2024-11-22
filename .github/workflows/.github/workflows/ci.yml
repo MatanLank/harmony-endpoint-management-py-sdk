@@ -37,6 +37,7 @@ jobs:
           curl -sSLo sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.8.0.2856-linux.zip
           unzip sonar-scanner.zip -d $HOME
           export PATH=$HOME/sonar-scanner-4.8.0.2856-linux/bin:$PATH
+          echo "export PATH=$HOME/sonar-scanner-4.8.0.2856-linux/bin:$PATH" >> $HOME/.bashrc
           echo "SonarScanner installed and PATH updated"
 
       # Step 6: Debug PATH and SonarScanner Installation
@@ -46,15 +47,15 @@ jobs:
           echo "PATH: $PATH"
           ls -l $HOME/sonar-scanner-4.8.0.2856-linux/bin
           echo "Checking sonar-scanner version:"
-          sonar-scanner --version || echo "SonarScanner not found or not executable"
+          $HOME/sonar-scanner-4.8.0.2856-linux/bin/sonar-scanner --version || echo "SonarScanner not found or not executable"
 
       # Step 7: Run SonarCloud Scan
       - name: Run SonarCloud Scan
         run: |
           export PATH=$HOME/sonar-scanner-4.8.0.2856-linux/bin:$PATH
-          sonar-scanner \
-            -Dsonar.projectKey=MatanLank_harmony-endpoint-management-py-sdk \
-            -Dsonar.organization=MatanLank \
-            -Dsonar.host.url=https://sonarcloud.io \
-            -Dsonar.login=${{ secrets.DEVSEC01 }}
+          $HOME/sonar-scanner-4.8.0.2856-linux/bin/sonar-scanner \
+          -Dsonar.projectKey=MatanLank_harmony-endpoint-management-py-sdk \
+          -Dsonar.organization=MatanLank \
+          -Dsonar.host.url=https://sonarcloud.io \
+          -Dsonar.login=${{ secrets.DEVSEC01 }}
 
