@@ -10,37 +10,26 @@ jobs:
   sonarcloud:
     name: SonarCloud Analysis
     runs-on: ubuntu-latest
+
     steps:
+      # Step 1: Checkout code
       - name: Checkout code
         uses: actions/checkout@v3
 
+      # Step 2: Set up Python
       - name: Set up Python
-        uses: actions/setup-python@v3
+        uses: actions/setup-python@v4
         with:
           python-version: '3.x'
 
+      # Step 3: Install dependencies
       - name: Install dependencies
-        run: |
-          pip install -r requirements.txt
+        run: pip install -r requirements.txt
 
-      - name: Install SonarScanner
-        run: |
-          curl -sSLo sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.8.0.2856-linux.zip
-          unzip sonar-scanner.zip -d $HOME
-          export PATH="$HOME/sonar-scanner-4.8.0.2856-linux/bin:$PATH"
-          echo "SonarScanner installed and path updated"
-
-      - name: Verify Java Installation
-        run: java -version
-
-      - name: Debug SonarScanner
-        run: sonar-scanner --version
-
-      - name: Run SonarCloud Scan
-        run: |
-          sonar-scanner \
-          -Dsonar.projectKey=MatanLank_harmony-endpoint-management-py-sdk \
-          -Dsonar.organization=MatanLank \
-          -Dsonar.host.url=https://sonarcloud.io \
-          -Dsonar.login=${{ secrets.DEVSEC01 }}
+      # Step 4: Set up SonarCloud Scan
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@v1
+        with:
+          organization: "MatanLank"  # Replace with your SonarCloud organization
+          token: "${{ secrets.DEVSEC01 }}"  # Ensure this secret is set correctly
 
