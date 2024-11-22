@@ -31,14 +31,20 @@ jobs:
           curl -sSLo sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.8.0.2856-linux.zip
           unzip sonar-scanner.zip -d $HOME
           echo "$HOME/sonar-scanner-4.8.0.2856-linux/bin" >> $GITHUB_PATH
+          echo "PATH=$HOME/sonar-scanner-4.8.0.2856-linux/bin:\$PATH" >> $GITHUB_ENV
+          echo "SonarScanner installed and PATH updated"
 
       # Step 5: Verify Java Installation
       - name: Verify Java Installation
         run: java -version
 
-      # Step 6: Debug SonarScanner
-      - name: Debug SonarScanner
-        run: sonar-scanner --version
+      # Step 6: Debug SonarScanner Installation
+      - name: Debug SonarScanner Installation
+        run: |
+          echo "PATH: $PATH"
+          env
+          ls -l $HOME/sonar-scanner-4.8.0.2856-linux/bin
+          sonar-scanner --version || echo "SonarScanner not found or not executable"
 
       # Step 7: Run SonarCloud Scan
       - name: Run SonarCloud Scan
