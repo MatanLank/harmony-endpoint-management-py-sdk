@@ -31,10 +31,11 @@ jobs:
         run: |
           curl -sSLo sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.8.0.2856-linux.zip
           unzip sonar-scanner.zip -d $HOME
-          export PATH="$HOME/sonar-scanner-4.8.0.2856-linux/bin:$PATH"
+          echo "export PATH=$HOME/sonar-scanner-4.8.0.2856-linux/bin:$PATH" >> $HOME/.bashrc
+          source $HOME/.bashrc
           echo "SonarScanner installed and PATH updated"
 
-      - name: Debug Environment
+      - name: Debug PATH and Installation
         run: |
           echo "PATH: $PATH"
           ls -l $HOME/sonar-scanner-4.8.0.2856-linux/bin
@@ -43,7 +44,7 @@ jobs:
 
       - name: Run SonarCloud Scan
         run: |
-          sonar-scanner \
+          $HOME/sonar-scanner-4.8.0.2856-linux/bin/sonar-scanner \
           -Dsonar.projectKey=MatanLank_harmony-endpoint-management-py-sdk \
           -Dsonar.organization=MatanLank \
           -Dsonar.host.url=https://sonarcloud.io \
