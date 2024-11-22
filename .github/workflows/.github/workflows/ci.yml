@@ -7,7 +7,7 @@ on:
   pull_request:
 
 jobs:
-  sonaranalysis:
+  sonarcloud:
     name: SonarCloud Analysis
     runs-on: ubuntu-latest
     steps:
@@ -21,38 +21,31 @@ jobs:
         with:
           python-version: '3.x'
 
-      # Step 3: Set up Java
-      - name: Set up Java
-        uses: actions/setup-java@v3
-        with:
-          java-version: '11'
-
-      # Step 4: Install dependencies
+      # Step 3: Install dependencies
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      # Step 5: Install SonarScanner
+      # Step 4: Install SonarScanner
       - name: Install SonarScanner
         run: |
           curl -sSLo sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.8.0.2856-linux.zip
           unzip sonar-scanner.zip -d $HOME
           echo "$HOME/sonar-scanner-4.8.0.2856-linux/bin" >> $GITHUB_PATH
-          echo "SonarScanner installed and PATH updated"
 
-      # Step 6: Debug PATH and SonarScanner Installation
-      - name: Debug PATH and SonarScanner
-        run: |
-          echo "PATH: $PATH"
-          ls -l $HOME/sonar-scanner-4.8.0.2856-linux/bin
-          echo "Checking sonar-scanner version:"
-          sonar-scanner --version || echo "SonarScanner not found or not executable"
+      # Step 5: Verify Java Installation
+      - name: Verify Java Installation
+        run: java -version
+
+      # Step 6: Debug SonarScanner
+      - name: Debug SonarScanner
+        run: sonar-scanner --version
 
       # Step 7: Run SonarCloud Scan
       - name: Run SonarCloud Scan
         run: |
           sonar-scanner \
-            -Dsonar.projectKey=MatanLank_harmony-endpoint-management-py-sdk \
-            -Dsonar.organization=MatanLank \
-            -Dsonar.host.url=https://sonarcloud.io \
-            -Dsonar.login=${{ secrets.DEVSEC01 }}
+          -Dsonar.projectKey=MatanLank_harmony-endpoint-management-py-sdk \
+          -Dsonar.organization=MatanLank \
+          -Dsonar.host.url=https://sonarcloud.io \
+          -Dsonar.login=${{ secrets.DEVSEC01 }}
 
