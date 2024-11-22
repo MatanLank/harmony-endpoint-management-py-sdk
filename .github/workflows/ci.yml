@@ -7,10 +7,9 @@ on:
   pull_request:
 
 jobs:
-  sonarcloud:
+  sonarqube:
     name: SonarCloud Analysis
     runs-on: ubuntu-latest
-
     steps:
       # Step 1: Checkout code
       - name: Checkout code
@@ -26,10 +25,15 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      # Step 4: Set up SonarCloud Scan
+      # Step 4: Run SonarCloud Scan
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@v1
+        env:
+          SONAR_TOKEN: ${{ secrets.DEVSEC01 }} # Your SonarCloud token stored as a GitHub secret
         with:
-          organization: "MatanLank"  # Replace with your SonarCloud organization
-          token: "${{ secrets.DEVSEC01 }}"  # Ensure this secret is set correctly
+          args: >
+            -Dsonar.projectKey=MatanLank_harmony-endpoint-management-py-sdk
+            -Dsonar.organization=matanlank80
+            -Dsonar.host.url=https://sonarcloud.io
+            -Dsonar.sources=.
 
