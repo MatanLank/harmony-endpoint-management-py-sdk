@@ -40,6 +40,7 @@ jobs:
       # Step 6: Debug SonarScanner Installation
       - name: Debug SonarScanner Installation
         run: |
+          source $GITHUB_ENV
           echo "PATH: $PATH"
           ls -l $HOME/sonar-scanner-4.8.0.2856-linux/bin
           sonar-scanner --version || echo "SonarScanner not found or not executable"
