@@ -1,3 +1,11 @@
+on:
+  push:
+    branches:
+      - release
+  pull_request:
+    branches:
+      - release
+
 jobs:
   sonarqube:
     name: SonarCloud Analysis
@@ -23,17 +31,17 @@ jobs:
 
       - name: SonarCloud Scan with Docker
         env:
-          SONAR_TOKEN: ${{ secrets.DEVSEC01 }}  # Your SonarCloud token stored as a GitHub secret
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}  # Your SonarCloud token stored as a GitHub secret
         run: |
           docker run --rm \
-            -e SONAR_TOKEN="${SONAR_TOKEN}" \
-            -v "${GITHUB_WORKSPACE}:/usr/src" \
-            sonarsource/sonar-scanner-cli:latest \
-            sonar-scanner \
-            -Dsonar.projectKey=MatanLank_harmony-endpoint-management-py-sdk \
-            -Dsonar.organization=matanlank80 \
-            -Dsonar.host.url=https://sonarcloud.io \
-            -Dsonar.sources=.
+          -e SONAR_TOKEN="${SONAR_TOKEN}" \
+          -v "${GITHUB_WORKSPACE}:/usr/src" \
+          sonarsource/sonar-scanner-cli:latest \
+          sonar-scanner \
+          -Dsonar.projectKey=MatanLank_harmony-endpoint-management-py-sdk \
+          -Dsonar.organization=matanlank80 \
+          -Dsonar.host.url=https://sonarcloud.io \
+          -Dsonar.sources=.
 
       # New Step: Upload Artifact to JFrog Artifactory
       - name: Upload Artifact to JFrog Artifactory
@@ -41,8 +49,8 @@ jobs:
           JFROG_IDENTITY_TOKEN: ${{ secrets.JFROG_IDENTITY_TOKEN }}
         run: |
           curl -u "admin:${JFROG_IDENTITY_TOKEN}" \
-            -T <your_artifact_file> \
-            "https://<your_artifactory_url>/artifactory/<repo_name>/<artifact_path>"
+          -T <your_artifact_file> \
+          "https://<your_artifactory_url>/artifactory/<repo_name>/<artifact_path>"
 
       # New Step: Trigger JFrog XRay Scan
       - name: Trigger JFrog XRay Scan
