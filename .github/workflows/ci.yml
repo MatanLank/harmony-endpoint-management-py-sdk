@@ -45,6 +45,10 @@ jobs:
             -Dsonar.host.url=https://sonarcloud.io \
             -Dsonar.sources=.
 
+      # New Step: Create the Artifact (this assumes you want to create artifact.zip from files in your workspace)
+      - name: Create Artifact
+        run: zip -r artifact.zip folder1/package1
+
       # New Step: Upload Artifact to JFrog Artifactory
       - name: Upload Artifact to JFrog Artifactory
         env:
