@@ -1,0 +1,38 @@
+name: Build and Test Workflow
+
+# This triggers the workflow on push or pull request events
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest  # Defines the environment to use for the build
+
+    steps:
+      # Step 1: Checkout the code from your repository
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      # Step 2: Set up Python environment (Modify for Java/Maven or other)
+      - name: Set Up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      # Step 3: Install Dependencies
+      - name: Install Dependencies
+        run: |
+          if [ -f "requirements.txt" ]; then
+            pip install -r requirements.txt
+          else
+            echo "No requirements.txt found. Skipping..."
+          fi
+
+      # Step 4: Run Tests (Modify based on project)
+      - name: Run Tests
+        run: |
+          if [ -f "pytest.ini" ] || [ -f "tests" ]; then
+            pytest
+          else
+            echo "No tests found to run. Skipping..."
+          fi
+
