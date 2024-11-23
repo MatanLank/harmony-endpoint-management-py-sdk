@@ -10,30 +10,34 @@ on:
 
 jobs:
   sonarqube:
-    name: SonarCloud Analysis
+    name: SonarCloud Analysis and JFrog Xray Scan
     runs-on: ubuntu-latest
     steps:
-      # Existing steps (SonarCloud, etc.)
+      # Step 1: Checkout code
       - name: Checkout code
         uses: actions/checkout@v3
 
+      # Step 2: Set up Java
       - name: Set up JDK 17
         uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
           java-version: '17'
 
+      # Step 3: Set up Python
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.x'
 
+      # Step 4: Install dependencies
       - name: Install dependencies
         run: pip install -r requirements.txt
 
+      # Step 5: SonarCloud Scan with Docker
       - name: SonarCloud Scan with Docker
         env:
-          SONAR_TOKEN: ${{ secrets.DEVSEC01 }} # Your SonarCloud token stored as a GitHub secret
+          SONAR_TOKEN: ${{ secrets.DEVSEC01 }}
         run: |
           docker run --rm \
             -e SONAR_TOKEN="${SONAR_TOKEN}" \
@@ -44,18 +48,16 @@ jobs:
             -Dsonar.organization=matanlank80 \
             -Dsonar.host.url=https://sonarcloud.io \
             -Dsonar.sources=.
+          if [ $? -ne 0 ]; then
+            echo "SonarCloud Quality Gate failed. Failing the job."
+            exit 1
+          fi
 
-      # New Step: Create the Artifact Folder and File
-      - name: Create test folder and file
-        run: |
-          mkdir -p folder1
-          echo "Test content" > folder1/package1
-
-      # New Step: Create the Artifact
+      # Step 6: Create the Artifact
       - name: Create Artifact
         run: zip -r artifact.zip folder1/package1
 
-      # New Step: Upload Artifact to JFrog Artifactory
+      # Step 7: Upload Artifact to JFrog Artifactory
       - name: Upload Artifact to JFrog Artifactory
         env:
           JFROG_IDENTITY_TOKEN: ${{ secrets.JFROG_IDENTITY_TOKEN }}
@@ -64,16 +66,25 @@ jobs:
           -T artifact.zip \
           "https://matanlank.jfrog.io/artifactory/matan-pypi-repo-pypi/folder1/package1.zip"
 
-      # New Step: Trigger JFrog XRay Scan
+      # Step 8: Trigger JFrog XRay Scan
       - name: Trigger JFrog XRay Scan
         env:
           JFROG_IDENTITY_TOKEN: ${{ secrets.JFROG_IDENTITY_TOKEN }}
         run: |
-          curl -X POST "https://matanlank.jfrog.io/xray/api/v1/scanArtifact" \
+          response=$(curl -s -o output.json -w "%{http_code}" -X POST "https://matanlank.jfrog.io/xray/api/v1/scanArtifact" \
           -H "Content-Type: application/json" \
           -H "Authorization: Bearer ${JFROG_IDENTITY_TOKEN}" \
           -d '{
             "repo_key": "matan-pypi-repo-pypi",
             "artifact_path": "folder1/package1.zip"
-          }'
+          }')
+          if [ "$response" -ne 200 ]; then
+            echo "JFrog XRay scan failed. Failing the job."
+            exit 1
+          fi
+          # Check the scan results for critical issues
+          if grep -q '"severity": "Critical"' output.json; then
+            echo "Critical vulnerabilities found by JFrog XRay. Failing the job."
+            exit 1
+          fi
 
