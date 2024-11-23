@@ -45,7 +45,13 @@ jobs:
             -Dsonar.host.url=https://sonarcloud.io \
             -Dsonar.sources=.
 
-      # New Step: Create the Artifact (this assumes you want to create artifact.zip from files in your workspace)
+      # New Step: Create the Artifact Folder and File
+      - name: Create test folder and file
+        run: |
+          mkdir -p folder1
+          echo "Test content" > folder1/package1
+
+      # New Step: Create the Artifact
       - name: Create Artifact
         run: zip -r artifact.zip folder1/package1
 
