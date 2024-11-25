@@ -1,180 +1,58 @@
-# Check Point - Harmony Endpoint Management Python SDK
+Harmony Endpoint Management SDK - CI Pipeline with Security Integration
 
-[![License](https://img.shields.io/github/license/CheckPointSW/harmony-endpoint-management-py-sdk.svg?style=plastic)](https://github.com/CheckPointSW/harmony-endpoint-management-py-sdk/blob/release/LICENSE) [![Latest Release](https://img.shields.io/github/v/release/CheckPointSW/harmony-endpoint-management-py-sdk?style=plastic)](https://github.com/CheckPointSW/harmony-endpoint-management-py-sdk/releases) [![PyPI version](https://img.shields.io/pypi/v/chkp-harmony-endpoint-management-sdk.svg?style=plastic)](https://pypi.org/project/chkp-harmony-endpoint-management-sdk/)
+This repository contains the harmony-endpoint-management-py-sdk, with a strong emphasis on DevSecOps practices to ensure secure development and deployment through automated CI pipelines. The goal was to create a secure and reliable process for managing endpoint security via integration with industry-leading tools.
 
+Overview
 
-<!-- 
-Coming soon :)
+In this project, I implemented a Continuous Integration (CI) pipeline for the harmony-endpoint-management-py-sdk using GitHub Actions, SonarCloud, and JFrog Xray. The CI pipeline ensures code quality, detects vulnerabilities, and enforces high security standards in the development process.
 
-[![npm downloads](https://img.shields.io/npm/dt/@chkp/harmony-endpoint-management-sdk.svg.svg?style=plastic)](https://npmjs.com/package/@chkp/harmony-endpoint-management-sdk.svg)
+Key Features
 
-[![GitHub stars](https://img.shields.io/github/stars/CheckPointSW/harmony-endpoint-management-py-sdk.svg?style=social&label=Star)](https://github.com/CheckPointSW/harmony-endpoint-management-py-sdk/stargazers) -->
+1. CI Pipeline Integration
+GitHub Actions: Implemented the CI pipeline using GitHub Actions, automating the code build, testing, security scanning, and artifact creation.
+Pipeline Blocking on Critical Issues: The pipeline is configured to fail builds with critical security issues, ensuring that code containing vulnerabilities is not deployed.
+2. Security Tools Implemented
+SonarCloud Integration: Integrated SonarCloud for comprehensive source code analysis.
+Security Analysis: Automated scans of source code for potential vulnerabilities.
+Quality Gate: The pipeline fails if any critical vulnerabilities are detected.
+Results: Achieved Grade A on security, maintainability, and reliability. No critical vulnerabilities were found.
+JFrog Xray Scanning: Integrated JFrog Xray to ensure the security of build artifacts and dependencies.
+Vulnerability Detection: Scans third-party dependencies for known vulnerabilities.
+Results: No critical vulnerabilities were detected; addressed a few high-risk issues identified in dependencies for future upgrades.
+3. Reporting
+Automated Security Reports:
+SonarCloud and JFrog Xray Reports were generated to summarize security findings.
+Pipeline Report: Generated a detailed report outlining the CI pipeline's security posture and findings. This report highlights security vulnerabilities, remediation steps, and general project health.
+Project Structure
 
-[![Build SDK Package](https://github.com/CheckPointSW/harmony-endpoint-management-py-sdk/actions/workflows/build.yml/badge.svg)](https://github.com/CheckPointSW/harmony-endpoint-management-py-sdk/actions/workflows/build.yml) [![Publish package to PyPI](https://github.com/CheckPointSW/harmony-endpoint-management-py-sdk/actions/workflows/release.yml/badge.svg)](https://github.com/CheckPointSW/harmony-endpoint-management-py-sdk/actions/workflows/release.yml)
+ci.yml: GitHub Actions workflow file defining the CI pipeline.
+Security Reports: Integrated with SonarCloud and JFrog Xray to maintain security and quality.
+Infrastructure-as-Code (IaC): Terraform scripts are used to automate the deployment of AWS resources required by the SDK.
+Technologies Used
 
-This is the Harmony Endpoint management SDK for Python ecosystem.
+CI Tool: GitHub Actions
+Code Quality Analysis: SonarCloud
+Artifact Scanning: JFrog Xray
+Infrastructure-as-Code: Terraform
+Programming Language: Python
+Key Achievements
 
-The SDK is based on the public [Harmony Endpoint management OpenAPI](https://app.swaggerhub.com/apis/Check-Point/web-mgmt-external-api-production) specifications.
+Improved Security Posture: Integrated static code analysis and artifact scanning, resulting in the early detection and remediation of vulnerabilities.
+Automation: Reduced manual intervention in the development pipeline by integrating automated security scans and CI checks.
+Reliability: The pipeline was configured to block any deployment if a critical issue is found, ensuring secure code practices.
+How to Use
 
-With the SDK, you do not have to manage log in, send keep alive requests, worry about session expiration or pull long processing jobs.
+Clone the Repository:
+git clone https://github.com/MatanLank/harmony-endpoint-management-py-sdk.git
+cd harmony-endpoint-management-py-sdk
+Trigger the CI Pipeline:
+Push new code changes to the repository to trigger the GitHub Actions CI pipeline.
+View Security Reports:
+Access security scan results on SonarCloud and JFrog Xray for detailed analysis.
+Recommendations
 
-> 💡 The Harmony Endpoint SDK supports simultaneous instances with different tenants.
+Increase Test Coverage: Current test coverage is 0%. Adding unit and integration tests will enhance robustness.
+Dependency Management: Regularly update dependencies to avoid vulnerabilities.
+Conclusion
 
-## ⬇️ SDK installation
-
-To start using this SDK, add the SDK package to your project
-
-Via PIP (PyPi registry)
-```bash 
-pip install chkp-harmony-endpoint-management-sdk
-```
-
-## 🚀 Getting started
-
-First, import the `HarmonyEndpoint` object from the package.
-
-```python
-from chkp_harmony_endpoint_management_sdk import HarmonyEndpoint
-```
-
-Then, create a new instance of `HarmonyEndpoint`, which provides CloudInfra API credentials and a gateway to connect to.
-
-To obtain CloudInfra credentials, open the Infinity Portal and create a suitable API Key. Make sure to select `Endpoint` in the `Service` field. For more information, see [Infinity Portal Administration Guide](https://sc1.checkpoint.com/documents/Infinity_Portal/WebAdminGuides/EN/Infinity-Portal-Admin-Guide/Content/Topics-Infinity-Portal/API-Keys.htm?tocpath=Global%20Settings%7C_____7#API_Keys).
-
-Once the Client ID, Secret Key, and Authentication URL are obtained, Harmony Endpoint SDK can be used.
-
-All API operations can be explored with the `HarmonyEndpoint` instance, notice to the documentation on each API operation, what and where are the arguments it requires.
-
-All API's can be also explored in [SwaggerHub](https://app.swaggerhub.com/apis/Check-Point/web-mgmt-external-api-production)
-
-A complete example:
-
-```python
-from chkp_harmony_endpoint_management_sdk import HarmonyEndpoint, InfinityPortalAuth
-
-# Create a new instance of HarmonyEndpoint (we do support multiple instances in parallel)
-he = HarmonyEndpoint()
-
-# Connect to management using CloudInfra API credentials
-he.connect(infinity_portal_auth=InfinityPortalAuth(
-        client_id="place here your CI client-id", # The "Client ID"
-        access_key= "place here your CI access-key", # The "Secret Key"
-        gateway="https://cloudinfra-gw-us.portal.checkpoint.com/auth/external" # The "Authentication URL"
-        )) 
-
-# Query the API operation
-rules_metadata_res = he.policy_general_api.get_all_rules_metadata(header_params={ "x-mgmt-run-as-job": 'off'})
-print(rules_metadata_res.payload)  # Your rulebase metadata
-
-# Also you can query this operation using job, no extra logic required, in the background, it will trigger a job and will pull the status till it finish and return the final results. 
-rules_metadata_res = he.policy_general_api.get_all_rules_metadata(header_params={ "x-mgmt-run-as-job": 'on'})
-print(rules_metadata_res.is_job)  # True
-print(rules_metadata_res.payload)  # Your rulebase metadata
-
-# Once finish, disconnect to stop all background session management. 
-he.disconnect()
-```
-
-### 🏠 On-premise
-
-🛠️🛠️🛠️ **Under Development** 🛠️🛠️🛠️
-
-Harmony Endpoint On-premise instances are also supported.
-
-> Pay attention! Not all cloud operations are available for on-premise, also need to specify the SDK version to comply with your Gaia / JHF version
-
-
-```python
-from chkp_harmony_endpoint_management_sdk import HarmonyEndpointPremise, OnPremisePortalAuth
-
-# Create a new instance of HarmonyEndpoint (we do support multiple instances in parallel)
-hep = HarmonyEndpointPremise()
-
-# Connect to management using CloudInfra API credentials
-hep.connect(on_premise_portal_auth=OnPremisePortalAuth(
-    username="xxxx", 
-    password= "xxxx", 
-    url="https://x.x.x.x",
-    disable_tls_chain_validation=False # Set it true only if you fully trust this URL (e.g. case of internal but not verified https certificate)
-    )) 
-
-# Query the API operation
-rules_metadata_res = hep.policy_general_api.get_all_rules_metadata(header_params={ "x-mgmt-run-as-job": 'off'})
-print(rules_metadata_res.payload)  # Your rulebase metadata
-
-# Once all finish, disconnect to stop all background session management. 
-hep.disconnect()
-```
-
-On-Premises API can be explored in [SwaggerHub](https://app.swaggerhub.com/apis/Check-Point/web-mgmt-external-api-premise)
-
-### ☁️ Cloud & MSSP services APIs
-
-Harmony Endpoint also provides APIs for MSSP and Cloud service management (relevant to SaaS customers only) 
-
-
-The usage is similar to the management API
-```python
-from chkp_harmony_endpoint_management_sdk import HarmonyEndpointSaaS, InfinityPortalAuth, HarmonyEndpointSaaSOptions
-
-he_saas = HarmonyEndpointSaaS()
-
-# Connect to management using CloudInfra API credentials
-he_saas.connect(infinity_portal_auth=InfinityPortalAuth(
-        client_id="place here your CI client-id", # The "Client ID"
-        access_key= "place here your CI access-key", # The "Secret Key"
-        gateway="https://cloudinfra-gw-us.portal.checkpoint.com/auth/external", # The "Authentication URL"
-        harmony_endpoint_saas_options=HarmonyEndpointSaaSOptions(
-                    activate_mssp_session=True # Activate MSSP's session management, turn on if you're using MSSP APIs
-                )
-        )) 
-
-# Query the cloud API operation
-instance_status_res = he_saas.self_service_api.public_machines_single_status()
-print(instance_status_res.payload)  # Your instance status
-
-he_saas.disconnect()
-```
-API available at [SwaggerHub](https://app.swaggerhub.com/apis/Check-Point/harmony-endpoint-cloud-api-prod)
-
-## 🔍 Troubleshooting and logging
-
-The full version and build info of the SDK is available by `HarmonyEndpoint.info()` see example:
-```python
-from chkp_harmony_endpoint_management_sdk import HarmonyEndpoint, HarmonyEndpointSDKInfo
-
-sdk_info: HarmonyEndpointSDKInfo = HarmonyEndpoint.info()
-print(sdk_info) # sdk_build:"9728283", sdk_version:"1.0.2", spec:"web-mgmt-external-api-production", spec_version:"1.9.159", released_on:"2023-09-10T18:14:38.264Z"
-```
-
-Harmony Endpoint Management SDK uses the official python logger package for logging.
-
-There are 3 loggers, for general info, errors and to inspect network.
-
-As default they will be disabled, in order to enable logging, set to the `HARMONY_ENDPOINT_SDK_LOGGER` environment variable the following string before loading the SDK:
-```bash
-HARMONY_ENDPOINT_SDK_LOGGER="*"
-```
-
-And for a specific/s logger set the logger name followed by a command as following:
-```bash
-HARMONY_ENDPOINT_SDK_LOGGER="info,error,network"
-```
-
-or activate logger programmatically using SDK methods:
-```python
-from chkp_harmony_endpoint_management_sdk import activate_all_loggers, activate_info_logger, activate_error_logger, activate_network_logger
-...
-activate_all_loggers() # Will activate all logger
-activate_info_logger() # Will activate the info logger only
-activate_error_logger() # Will activate the error logger only
-activate_network_logger() # Will activate the network logger only
-```
-
-## 🐞 Report Bug
-
-In case of an issue or a bug found in the SDK, please open an [issue](https://github.com/CheckPointSW/harmony-endpoint-management-py-sdk/issues) or report to us [Check Point Software Technologies Ltd](mailto:harmony-endpoint-external-api@checkpoint.com).
-
-## 🤝 Contributors 
-- Haim Kastner - [chkp-haimk](https://github.com/chkp-haimk)
-- Yuval Pomerchik - [chkp-yuvalpo](https://github.com/chkp-yuvalpo)
+The integration of a CI pipeline with GitHub Actions, SonarCloud, and JFrog Xray improved the security, quality, and reliability of the harmony-endpoint-management-py-sdk. This project demonstrates best practices in DevSecOps, ensuring that security is addressed early and consistently throughout the development lifecycle.
