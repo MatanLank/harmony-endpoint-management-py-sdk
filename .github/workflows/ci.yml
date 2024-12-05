@@ -13,27 +13,31 @@ jobs:
     name: SonarCloud Analysis and JFrog XRay Scan
     runs-on: ubuntu-latest
     steps:
-      # Existing steps (SonarCloud, etc.)
+      # Step: Checkout Code
       - name: Checkout code
         uses: actions/checkout@v3
 
+      # Step: Set up JDK 17
       - name: Set up JDK 17
         uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
           java-version: '17'
 
+      # Step: Set up Python
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.x'
 
+      # Step: Install Dependencies
       - name: Install dependencies
         run: pip install -r requirements.txt
 
+      # Step: SonarCloud Scan with Docker
       - name: SonarCloud Scan with Docker
         env:
-          SONAR_TOKEN: ${{ secrets.DEVSEC01 }} # Your SonarCloud token stored as a GitHub secret
+          SONAR_TOKEN: ${{ secrets.DEVSEC01 }}
         run: |
           docker run --rm \
           -e SONAR_TOKEN="${SONAR_TOKEN}" \
@@ -45,14 +49,15 @@ jobs:
           -Dsonar.host.url=https://sonarcloud.io \
           -Dsonar.sources=.
 
-      # New Step: Create the Artifact (fix path issue to ensure files exist)
+      # Step: Create the Artifact Directory
       - name: Create Artifact Directory
         run: mkdir -p folder1/package1
 
+      # Step: Create the Artifact
       - name: Create Artifact
         run: zip -r artifact.zip folder1/package1
 
-      # New Step: Upload Artifact to JFrog Artifactory
+      # Step: Upload Artifact to JFrog Artifactory
       - name: Upload Artifact to JFrog Artifactory
         env:
           JFROG_IDENTITY_TOKEN: ${{ secrets.JFROG_IDENTITY_TOKEN }}
@@ -61,7 +66,7 @@ jobs:
           -T artifact.zip \
           "https://matanlank.jfrog.io/artifactory/matan-pypi-repo-pypi/folder1/package1.zip"
 
-      # New Step: Trigger JFrog XRay Scan
+      # Step: Trigger JFrog XRay Scan
       - name: Trigger JFrog XRay Scan
         env:
           JFROG_IDENTITY_TOKEN: ${{ secrets.JFROG_IDENTITY_TOKEN }}
@@ -80,9 +85,12 @@ jobs:
         run: |
           curl -X GET "https://sonarcloud.io/api/qualitygates/project_status?projectKey=MatanLank_harmony-endpoint-management-py-sdk" | grep '"status":"ERROR"' && exit 1 || exit 0
 
-      # Step: Check JFrog XRay Scan Results
+      # Step: Check JFrog XRay Scan Results (Fail on Critical Issues)
       - name: Check JFrog XRay Results
         if: ${{ always() }}
+        env:
+          JFROG_IDENTITY_TOKEN: ${{ secrets.JFROG_IDENTITY_TOKEN }}
         run: |
-          curl -X GET "https://matanlank.jfrog.io/xray/api/v1/summary/component?component_details=matan-pypi-repo-pypi/folder1/package1.zip" | grep '"severity":"Critical"' && exit 1 || exit 0
+          response=$(curl -X GET "https://matanlank.jfrog.io/xray/api/v1/summary/component?component_details=matan-pypi-repo-pypi/folder1/package1.zip" -H "Authorization: Bearer ${JFROG_IDENTITY_TOKEN}")
+          echo "$response" | grep '"severity":"Critical"' && exit 1 || exit 0
 
